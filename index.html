@@ -33,6 +33,8 @@
   async function loadImages() {
     try {
       const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${imagePath}`;
+      console.log("API URL:", apiUrl); // Debugging: Log the API URL
+
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
@@ -40,7 +42,9 @@
       }
 
       const data = await response.json();
-      const imageFiles = data.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif)$/i.test(item.name)); // Filter for image files
+      console.log("API Response Data:", data); // Debugging: Log the API response
+
+      const imageFiles = data.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif|avif)$/i.test(item.name)); // Filter for image files
       if(imageFiles.length == lastImageCount) {
         console.log("No new images");
         return; // nothing to do
