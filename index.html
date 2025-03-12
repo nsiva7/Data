@@ -14,6 +14,7 @@
       max-width: 300px; /* Adjust as needed */
       max-height: 200px;
       border: 1px solid #ccc;
+      cursor: pointer; /* Change cursor to a pointer on hover */
     }
   </style>
 </head>
@@ -54,10 +55,19 @@
 
       imageFiles.forEach(image => {
         const imageUrl = image.download_url;
+
+        // Create an <a> (anchor) tag to wrap the image
+        const linkElement = document.createElement('a');
+        linkElement.href = imageUrl; // Set the link to the image URL
+        linkElement.target = '_blank';  // Tell the browser to open the link in a new tab/window
+
         const imgElement = document.createElement('img');
         imgElement.src = imageUrl + '?v=' + Date.now(); // Cache busting: Add a timestamp to force refresh
         imgElement.alt = image.name;
-        imageContainer.appendChild(imgElement);
+
+        linkElement.appendChild(imgElement); // Add the image to the link
+
+        imageContainer.appendChild(linkElement); // Add the link (with the image inside) to the container
       });
       lastImageCount = imageFiles.length;
     } catch (error) {
