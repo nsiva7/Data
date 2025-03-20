@@ -90,8 +90,15 @@
       if (images) {
         images.filter(item => item.type === 'file' && /\.(jpg|jpeg|jpe?g|png|gif|webp|avif|svg)$/i.test(item.name)).forEach(image => {
           const imageUrl = image.download_url; // Or image.raw_url if that's what you want
+
+          // Create an <a> (anchor) tag to wrap the image
+          const linkElement = document.createElement('a');
+          linkElement.href = imageUrl; // Set the link to the image URL
+          linkElement.target = '_blank';  // Tell the browser to open the link in a new tab/window
+
           const imgElement = document.createElement('img');
-          imgElement.src = imageUrl;
+          // imgElement.src = imageUrl;
+          imgElement.src = imageUrl + '?v=' + Date.now(); // Cache busting: Add a timestamp to force refresh
           imgElement.alt = image.name;  // Important for accessibility
           container.appendChild(imgElement);
         });
