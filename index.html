@@ -1,86 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Food Images</title>
+  <title>Data Images</title>
   <style>
-    #image-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center; /* Center images horizontally */
+    body {
+      font-family: sans-serif;
+      margin: 20px;
     }
 
-    #image-container img {
-      margin: 10px;
-      max-width: 300px; /* Adjust as needed */
-      max-height: 200px;
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px; /* Spacing between images */
+    }
+
+    .image-container img {
+      width: 200px; /* Adjust as needed */
+      height: auto;
       border: 1px solid #ccc;
-      cursor: pointer; /* Change cursor to a pointer on hover */
+      padding: 5px;
+      box-sizing: border-box; /* Include padding and border in width/height */
+    }
+
+    h2 {
+      margin-top: 20px; /* Spacing before folder headers */
     }
   </style>
 </head>
 <body>
-<h1>Images from GitHub Repo</h1>
-<div id="image-container">
-  <!-- Images will be loaded here by JavaScript -->
+
+<h1>Images from GitHub Repository</h1>
+
+<div id="image-gallery">
+  <!-- Images will be loaded here -->
 </div>
 
 <script>
-  const username = 'nsiva7';  // Replace with your GitHub username
-  const repoName = 'Data';    // Replace with your repo name
-  const imagePath = 'Images';           // The folder in your repo where images are located
-  const imageContainer = document.getElementById('image-container');
-  let lastImageCount = 0; // keep track of how many images there are.
+  const githubUsername = 'nsiva7';  // Replace with your GitHub username
+  const githubRepo = 'Data';       // Replace with your GitHub repository name
+  const baseDirectory = 'Images';              // The base directory containing image folders
 
-  async function loadImages() {
+  async function fetchDirectoryContents(directory) {
+    const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${directory}`;
+
     try {
-      const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${imagePath}`;
-      console.log("API URL:", apiUrl); // Debugging: Log the API URL
-
       const response = await fetch(apiUrl);
-
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log("API Response Data:", data); // Debugging: Log the API response
-
-      const imageFiles = data.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif|avif)$/i.test(item.name)); // Filter for image files
-      if(imageFiles.length == lastImageCount) {
-        console.log("No new images");
-        return; // nothing to do
-      }
-
-      imageContainer.innerHTML = ''; // Clear existing images
-
-      imageFiles.forEach(image => {
-        const imageUrl = image.download_url;
-
-        // Create an <a> (anchor) tag to wrap the image
-        const linkElement = document.createElement('a');
-        linkElement.href = imageUrl; // Set the link to the image URL
-        linkElement.target = '_blank';  // Tell the browser to open the link in a new tab/window
-
-        const imgElement = document.createElement('img');
-        imgElement.src = imageUrl + '?v=' + Date.now(); // Cache busting: Add a timestamp to force refresh
-        imgElement.alt = image.name;
-
-        linkElement.appendChild(imgElement); // Add the image to the link
-
-        imageContainer.appendChild(linkElement); // Add the link (with the image inside) to the container
-      });
-      lastImageCount = imageFiles.length;
+      return data;
     } catch (error) {
-      console.error('Error loading images:', error);
-      imageContainer.innerHTML = `<p>Error loading images. Check console for details.</p>`;
+      console.error('Error fetching directory contents:', error);
+      return null;
     }
   }
 
-  // Initial load
-  loadImages();
+  async function displayImages() {
+    const imageGallery = document.getElementById('image-gallery');
 
-  // Periodically reload to check for new images (every 5 minutes)
-  setInterval(loadImages, 5 * 60 * 1000); // 5 minutes (adjust as needed)
+    // First, fetch all subdirectories within the base directory
+    const baseContents = await fetchDirectoryContents(baseDirectory);
+
+    if (!baseContents) {
+      imageGallery.innerHTML = '<p>Failed to load directory contents.</p>';
+      return;
+    }
+
+    const subDirectories = baseContents.filter(item => item.type === 'dir');
+
+
+    for (const subDirectory of subDirectories) {
+      const folderName = subDirectory.name;
+      const folderPath = `${baseDirectory}/${folderName}`;
+
+      // Create a header for the folder
+      const header = document.createElement('h2');
+      header.textContent = folderName;
+      imageGallery.appendChild(header);
+
+      // Create a container for the images in this folder
+      const container = document.createElement('div');
+      container.className = 'image-container';
+      imageGallery.appendChild(container);
+
+      // Fetch images from the current subdirectory
+      const images = await fetchDirectoryContents(folderPath);
+
+      if (images) {
+        images.filter(item => item.type === 'file' && /\.(jpg|jpeg|jpe?g|png|gif|webp|avif|svg)$/i.test(item.name)).forEach(image => {
+          const imageUrl = image.download_url; // Or image.raw_url if that's what you want
+          const imgElement = document.createElement('img');
+          imgElement.src = imageUrl;
+          imgElement.alt = image.name;  // Important for accessibility
+          container.appendChild(imgElement);
+        });
+      } else {
+        container.innerHTML = '<p>No images found in this folder.</p>';
+      }
+    }
+  }
+
+  displayImages();
 </script>
+
 </body>
 </html>

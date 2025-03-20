@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Food Images</title>
+  <style>
+    #image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* Center images horizontally */
+    }
+
+    #image-container img {
+      margin: 10px;
+      max-width: 300px; /* Adjust as needed */
+      max-height: 200px;
+      border: 1px solid #ccc;
+      cursor: pointer; /* Change cursor to a pointer on hover */
+    }
+  </style>
+</head>
+<body>
+<h1>Images from GitHub Repo</h1>
+<div id="image-container">
+  <!-- Images will be loaded here by JavaScript -->
+</div>
+
+<script>
+  const username = 'nsiva7';  // Replace with your GitHub username
+  const repoName = 'Data';    // Replace with your repo name
+  const imagePath = 'Images/Food';           // The folder in your repo where images are located
+  const imageContainer = document.getElementById('image-container');
+  let lastImageCount = 0; // keep track of how many images there are.
+
+  async function loadImages() {
+    try {
+      const apiUrl = `https://api.github.com/repos/${username}/${repoName}/contents/${imagePath}`;
+      console.log("API URL:", apiUrl); // Debugging: Log the API URL
+
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("API Response Data:", data); // Debugging: Log the API response
+
+      const imageFiles = data.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif|avif)$/i.test(item.name)); // Filter for image files
+      if(imageFiles.length == lastImageCount) {
+        console.log("No new images");
+        return; // nothing to do
+      }
+
+      imageContainer.innerHTML = ''; // Clear existing images
+
+      imageFiles.forEach(image => {
+        const imageUrl = image.download_url;
+
+        // Create an <a> (anchor) tag to wrap the image
+        const linkElement = document.createElement('a');
+        linkElement.href = imageUrl; // Set the link to the image URL
+        linkElement.target = '_blank';  // Tell the browser to open the link in a new tab/window
+
+        const imgElement = document.createElement('img');
+        imgElement.src = imageUrl + '?v=' + Date.now(); // Cache busting: Add a timestamp to force refresh
+        imgElement.alt = image.name;
+
+        linkElement.appendChild(imgElement); // Add the image to the link
+
+        imageContainer.appendChild(linkElement); // Add the link (with the image inside) to the container
+      });
+      lastImageCount = imageFiles.length;
+    } catch (error) {
+      console.error('Error loading images:', error);
+      imageContainer.innerHTML = `<p>Error loading images. Check console for details.</p>`;
+    }
+  }
+
+  // Initial load
+  loadImages();
+
+  // Periodically reload to check for new images (every 5 minutes)
+  setInterval(loadImages, 5 * 60 * 1000); // 5 minutes (adjust as needed)
+</script>
+</body>
+</html>
