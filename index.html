@@ -94,7 +94,7 @@
       const images = await fetchDirectoryContents(folderPath);
 
       if (images) {
-        images.filter(item => item.type === 'file' && /\.(jpe?g|png|gif|webp)$/i.test(item.name)).forEach(image => {
+        images.filter(item => item.type === 'file' && /\.(jpg|jpeg|jpe?g|png|gif|webp|avif|svg)$/i.test(item.name)).forEach(image => {
           const imageUrl = image.download_url; // Or image.raw_url if that's what you want
 
           // Create an anchor tag (link)
