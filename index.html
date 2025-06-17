@@ -1,123 +1,559 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Data Images</title>
+  <title>Data Images Gallery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .image-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px; /* Spacing between images */
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
 
-    .image-link { /* Style for the anchor tag */
-      display: block; /* Make the link a block-level element */
-    }
+header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
 
-    .image-container img {
-      width: 200px; /* Adjust as needed */
-      height: auto;   /* Maintain aspect ratio */
-      object-fit: cover; /* Prevent stretching, crop if necessary */
-      border: 1px solid #ccc;
-      padding: 5px;
-      box-sizing: border-box; /* Include padding and border in width/height */
-      display: block;  /*Remove extra space below the image*/
-    }
+h1 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
 
-    h2 {
-      margin-top: 20px; /* Spacing before folder headers */
-    }
+.stats {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+.folder-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.folder-section:hover {
+  transform: translateY(-5px);
+}
+
+.folder-title {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+.image-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.image-link {
+  display: block;
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background: #f8f9fa;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.image-link:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.image-link img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-link:hover img {
+  transform: scale(1.1);
+}
+
+.image-info {
+  padding: 1rem;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.no-images {
+  text-align: center;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  color: #666;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Loading animation */
+.image-link img {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-link img.loaded {
+  opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .image-container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  header {
+    padding: 1.5rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  main {
+    padding: 0 1rem 2rem;
+  }
+  
+  .folder-section {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
   </style>
 </head>
 <body>
-
-<h1>Images from GitHub Repository</h1>
-
-<div id="image-gallery">
-  <!-- Images will be loaded here -->
-</div>
-
-<script>
-  const githubUsername = 'nsiva7';  // Replace with your GitHub username
-  const githubRepo = 'Data';       // Replace with your GitHub repository name
-  const baseDirectory = 'Images';              // The base directory containing image folders
-
-  async function fetchDirectoryContents(directory) {
-    const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${directory}`;
-
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching directory contents:', error);
-      return null;
-    }
-  }
-
-  async function displayImages() {
-    const imageGallery = document.getElementById('image-gallery');
-
-    // First, fetch all subdirectories within the base directory
-    const baseContents = await fetchDirectoryContents(baseDirectory);
-
-    if (!baseContents) {
-      imageGallery.innerHTML = '<p>Failed to load directory contents.</p>';
-      return;
-    }
-
-    const subDirectories = baseContents.filter(item => item.type === 'dir');
-
-
-    for (const subDirectory of subDirectories) {
-      const folderName = subDirectory.name;
-      const folderPath = `${baseDirectory}/${folderName}`;
-
-      // Create a header for the folder
-      const header = document.createElement('h2');
-      header.textContent = folderName;
-      imageGallery.appendChild(header);
-
-      // Create a container for the images in this folder
-      const container = document.createElement('div');
-      container.className = 'image-container';
-      imageGallery.appendChild(container);
-
-      // Fetch images from the current subdirectory
-      const images = await fetchDirectoryContents(folderPath);
-
-      if (images) {
-        images.filter(item => item.type === 'file' && /\.(jpg|jpeg|jpe?g|png|gif|webp|avif|svg)$/i.test(item.name)).forEach(image => {
-          const imageUrl = image.download_url; // Or image.raw_url if that's what you want
-
-          // Create an anchor tag (link)
-          const linkElement = document.createElement('a');
-          linkElement.href = imageUrl;
-          linkElement.target = '_blank'; // Open in a new tab
-          linkElement.className = 'image-link'; // Style the link
-
-          const imgElement = document.createElement('img');
-          imgElement.src = imageUrl;
-          imgElement.alt = image.name;  // Important for accessibility
-
-          linkElement.appendChild(imgElement); // Add the image to the link
-          container.appendChild(linkElement); // Add the link to the container
-        });
-      } else {
-        container.innerHTML = '<p>No images found in this folder.</p>';
-      }
-    }
-  }
-
-  displayImages();
-</script>
-
+  <header>
+    <h1>🖼️ Images from GitHub Repository</h1>
+    <div class="stats">
+      📁 14 folders | 📷 63 images
+      <br><small>Generated on 2025-06-17 19:25:05</small>
+    </div>
+  </header>
+  
+  <main id="image-gallery">
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Loaf (5 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957691_1280.jpg" target="_blank" class="image-link" title="loaf-4957691_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957691_1280.jpg" alt="loaf-4957691_1280.jpg" loading="lazy">
+          <div class="image-info">loaf-4957691_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957697_1280.jpg" target="_blank" class="image-link" title="loaf-4957697_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957697_1280.jpg" alt="loaf-4957697_1280.jpg" loading="lazy">
+          <div class="image-info">loaf-4957697_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/ciabatta-284345_1280.jpg" target="_blank" class="image-link" title="ciabatta-284345_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/ciabatta-284345_1280.jpg" alt="ciabatta-284345_1280.jpg" loading="lazy">
+          <div class="image-info">ciabatta-284345_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957679_1280.jpg" target="_blank" class="image-link" title="loaf-4957679_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957679_1280.jpg" alt="loaf-4957679_1280.jpg" loading="lazy">
+          <div class="image-info">loaf-4957679_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957695_1280.jpg" target="_blank" class="image-link" title="loaf-4957695_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Loaf/loaf-4957695_1280.jpg" alt="loaf-4957695_1280.jpg" loading="lazy">
+          <div class="image-info">loaf-4957695_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Strawberry (4 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/cereal-5712343_1280.jpg" target="_blank" class="image-link" title="cereal-5712343_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/cereal-5712343_1280.jpg" alt="cereal-5712343_1280.jpg" loading="lazy">
+          <div class="image-info">cereal-5712343_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/oatmeal-1839515_1280.jpg" target="_blank" class="image-link" title="oatmeal-1839515_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/oatmeal-1839515_1280.jpg" alt="oatmeal-1839515_1280.jpg" loading="lazy">
+          <div class="image-info">oatmeal-1839515_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/strawberries-829271_1280.jpg" target="_blank" class="image-link" title="strawberries-829271_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/strawberries-829271_1280.jpg" alt="strawberries-829271_1280.jpg" loading="lazy">
+          <div class="image-info">strawberries-829271_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/strawberry-7224875_1280.jpg" target="_blank" class="image-link" title="strawberry-7224875_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Strawberry/strawberry-7224875_1280.jpg" alt="strawberry-7224875_1280.jpg" loading="lazy">
+          <div class="image-info">strawberry-7224875_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Restaurant (1 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Restaurant/Restaurant_1.webp" target="_blank" class="image-link" title="Restaurant_1.webp">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Restaurant/Restaurant_1.webp" alt="Restaurant_1.webp" loading="lazy">
+          <div class="image-info">Restaurant_1.webp</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Platter (3 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/pexels-ella-olsson-572949-1640772.jpg" target="_blank" class="image-link" title="pexels-ella-olsson-572949-1640772.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/pexels-ella-olsson-572949-1640772.jpg" alt="pexels-ella-olsson-572949-1640772.jpg" loading="lazy">
+          <div class="image-info">pexels-ella-olsson-572949-1640772.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/pexels-ella-olsson-572949-1640777.jpg" target="_blank" class="image-link" title="pexels-ella-olsson-572949-1640777.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/pexels-ella-olsson-572949-1640777.jpg" alt="pexels-ella-olsson-572949-1640777.jpg" loading="lazy">
+          <div class="image-info">pexels-ella-olsson-572949-1640777.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/restaurant-5125078_1280.jpg" target="_blank" class="image-link" title="restaurant-5125078_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Platter/restaurant-5125078_1280.jpg" alt="restaurant-5125078_1280.jpg" loading="lazy">
+          <div class="image-info">restaurant-5125078_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Plate (5 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_3.jpeg" target="_blank" class="image-link" title="Plate_3.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_3.jpeg" alt="Plate_3.jpeg" loading="lazy">
+          <div class="image-info">Plate_3.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_4.jpeg" target="_blank" class="image-link" title="Plate_4.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_4.jpeg" alt="Plate_4.jpeg" loading="lazy">
+          <div class="image-info">Plate_4.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_1.webp" target="_blank" class="image-link" title="Plate_1.webp">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_1.webp" alt="Plate_1.webp" loading="lazy">
+          <div class="image-info">Plate_1.webp</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_5.jpeg" target="_blank" class="image-link" title="Plate_5.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_5.jpeg" alt="Plate_5.jpeg" loading="lazy">
+          <div class="image-info">Plate_5.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_2.webp" target="_blank" class="image-link" title="Plate_2.webp">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Plate/Plate_2.webp" alt="Plate_2.webp" loading="lazy">
+          <div class="image-info">Plate_2.webp</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Pasta (3 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/bowl-1842294_1280.jpg" target="_blank" class="image-link" title="bowl-1842294_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/bowl-1842294_1280.jpg" alt="bowl-1842294_1280.jpg" loading="lazy">
+          <div class="image-info">bowl-1842294_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/pasta-7475756_1280.jpg" target="_blank" class="image-link" title="pasta-7475756_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/pasta-7475756_1280.jpg" alt="pasta-7475756_1280.jpg" loading="lazy">
+          <div class="image-info">pasta-7475756_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/pasta-2142229_1280.jpg" target="_blank" class="image-link" title="pasta-2142229_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pasta/pasta-2142229_1280.jpg" alt="pasta-2142229_1280.jpg" loading="lazy">
+          <div class="image-info">pasta-2142229_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Muffin (2 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Muffin/pizza-712667_1280.jpg" target="_blank" class="image-link" title="pizza-712667_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Muffin/pizza-712667_1280.jpg" alt="pizza-712667_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-712667_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Muffin/muffin-7870491_1280.jpg" target="_blank" class="image-link" title="muffin-7870491_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Muffin/muffin-7870491_1280.jpg" alt="muffin-7870491_1280.jpg" loading="lazy">
+          <div class="image-info">muffin-7870491_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Food (15 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_1.avif" target="_blank" class="image-link" title="food_1.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_1.avif" alt="food_1.avif" loading="lazy">
+          <div class="image-info">food_1.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_14.jpeg" target="_blank" class="image-link" title="Food_14.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_14.jpeg" alt="Food_14.jpeg" loading="lazy">
+          <div class="image-info">Food_14.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Ice_Cream.jpeg" target="_blank" class="image-link" title="Ice_Cream.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Ice_Cream.jpeg" alt="Ice_Cream.jpeg" loading="lazy">
+          <div class="image-info">Ice_Cream.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_7.avif" target="_blank" class="image-link" title="food_7.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_7.avif" alt="food_7.avif" loading="lazy">
+          <div class="image-info">food_7.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_12.jpeg" target="_blank" class="image-link" title="Food_12.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_12.jpeg" alt="Food_12.jpeg" loading="lazy">
+          <div class="image-info">Food_12.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_13.jpeg" target="_blank" class="image-link" title="Food_13.jpeg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/Food_13.jpeg" alt="Food_13.jpeg" loading="lazy">
+          <div class="image-info">Food_13.jpeg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_6.avif" target="_blank" class="image-link" title="food_6.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_6.avif" alt="food_6.avif" loading="lazy">
+          <div class="image-info">food_6.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_5.avif" target="_blank" class="image-link" title="food_5.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_5.avif" alt="food_5.avif" loading="lazy">
+          <div class="image-info">food_5.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_9.avif" target="_blank" class="image-link" title="food_9.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_9.avif" alt="food_9.avif" loading="lazy">
+          <div class="image-info">food_9.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_8.avif" target="_blank" class="image-link" title="food_8.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_8.avif" alt="food_8.avif" loading="lazy">
+          <div class="image-info">food_8.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_4.avif" target="_blank" class="image-link" title="food_4.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_4.avif" alt="food_4.avif" loading="lazy">
+          <div class="image-info">food_4.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_3.avif" target="_blank" class="image-link" title="food_3.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_3.avif" alt="food_3.avif" loading="lazy">
+          <div class="image-info">food_3.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_11.avif" target="_blank" class="image-link" title="food_11.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_11.avif" alt="food_11.avif" loading="lazy">
+          <div class="image-info">food_11.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_2.avif" target="_blank" class="image-link" title="food_2.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_2.avif" alt="food_2.avif" loading="lazy">
+          <div class="image-info">food_2.avif</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_10.avif" target="_blank" class="image-link" title="food_10.avif">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Food/food_10.avif" alt="food_10.avif" loading="lazy">
+          <div class="image-info">food_10.avif</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Burger (5 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/mushroom-burger-7323675_1280.jpg" target="_blank" class="image-link" title="mushroom-burger-7323675_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/mushroom-burger-7323675_1280.jpg" alt="mushroom-burger-7323675_1280.jpg" loading="lazy">
+          <div class="image-info">mushroom-burger-7323675_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/burger-3946012_1280.jpg" target="_blank" class="image-link" title="burger-3946012_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/burger-3946012_1280.jpg" alt="burger-3946012_1280.jpg" loading="lazy">
+          <div class="image-info">burger-3946012_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/burger-6594067_1280.jpg" target="_blank" class="image-link" title="burger-6594067_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/burger-6594067_1280.jpg" alt="burger-6594067_1280.jpg" loading="lazy">
+          <div class="image-info">burger-6594067_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/cheese-burger-7323672_1280.jpg" target="_blank" class="image-link" title="cheese-burger-7323672_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/cheese-burger-7323672_1280.jpg" alt="cheese-burger-7323672_1280.jpg" loading="lazy">
+          <div class="image-info">cheese-burger-7323672_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/spicy-burger-7323694_1280.jpg" target="_blank" class="image-link" title="spicy-burger-7323694_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Burger/spicy-burger-7323694_1280.jpg" alt="spicy-burger-7323694_1280.jpg" loading="lazy">
+          <div class="image-info">spicy-burger-7323694_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Cackes (6 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cupcakes-1133146_1280.jpg" target="_blank" class="image-link" title="cupcakes-1133146_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cupcakes-1133146_1280.jpg" alt="cupcakes-1133146_1280.jpg" loading="lazy">
+          <div class="image-info">cupcakes-1133146_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cheese-1887233_1280.jpg" target="_blank" class="image-link" title="cheese-1887233_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cheese-1887233_1280.jpg" alt="cheese-1887233_1280.jpg" loading="lazy">
+          <div class="image-info">cheese-1887233_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/pancakes-2291908_1280.jpg" target="_blank" class="image-link" title="pancakes-2291908_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/pancakes-2291908_1280.jpg" alt="pancakes-2291908_1280.jpg" loading="lazy">
+          <div class="image-info">pancakes-2291908_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cake-7951680_1280.jpg" target="_blank" class="image-link" title="cake-7951680_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cake-7951680_1280.jpg" alt="cake-7951680_1280.jpg" loading="lazy">
+          <div class="image-info">cake-7951680_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/restaurant-2570683_1280.jpg" target="_blank" class="image-link" title="restaurant-2570683_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/restaurant-2570683_1280.jpg" alt="restaurant-2570683_1280.jpg" loading="lazy">
+          <div class="image-info">restaurant-2570683_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cake-1227842_1280.jpg" target="_blank" class="image-link" title="cake-1227842_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Cackes/cake-1227842_1280.jpg" alt="cake-1227842_1280.jpg" loading="lazy">
+          <div class="image-info">cake-1227842_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Fruits (3 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/plums-1898196_1280.jpg" target="_blank" class="image-link" title="plums-1898196_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/plums-1898196_1280.jpg" alt="plums-1898196_1280.jpg" loading="lazy">
+          <div class="image-info">plums-1898196_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/berry-3513546_1280.jpg" target="_blank" class="image-link" title="berry-3513546_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/berry-3513546_1280.jpg" alt="berry-3513546_1280.jpg" loading="lazy">
+          <div class="image-info">berry-3513546_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/plum-1892901_1280.jpg" target="_blank" class="image-link" title="plum-1892901_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Fruits/plum-1892901_1280.jpg" alt="plum-1892901_1280.jpg" loading="lazy">
+          <div class="image-info">plum-1892901_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Omlette (1 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Omlette/bread-1836411_1280.jpg" target="_blank" class="image-link" title="bread-1836411_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Omlette/bread-1836411_1280.jpg" alt="bread-1836411_1280.jpg" loading="lazy">
+          <div class="image-info">bread-1836411_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Pizza (6 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-3949945_1280.jpg" target="_blank" class="image-link" title="pizza-3949945_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-3949945_1280.jpg" alt="pizza-3949945_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-3949945_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/plate-2802332_1280.jpg" target="_blank" class="image-link" title="plate-2802332_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/plate-2802332_1280.jpg" alt="plate-2802332_1280.jpg" loading="lazy">
+          <div class="image-info">plate-2802332_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-1094741_1280.jpg" target="_blank" class="image-link" title="pizza-1094741_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-1094741_1280.jpg" alt="pizza-1094741_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-1094741_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-3010062_1280.jpg" target="_blank" class="image-link" title="pizza-3010062_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-3010062_1280.jpg" alt="pizza-3010062_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-3010062_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-4770764_1280.jpg" target="_blank" class="image-link" title="pizza-4770764_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-4770764_1280.jpg" alt="pizza-4770764_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-4770764_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-2589569_1280.jpg" target="_blank" class="image-link" title="pizza-2589569_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Pizza/pizza-2589569_1280.jpg" alt="pizza-2589569_1280.jpg" loading="lazy">
+          <div class="image-info">pizza-2589569_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+    
+    <section class="folder-section">
+      <h2 class="folder-title">📁 Noodles (4 images)</h2>
+      <div class="image-container">
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/food-8151625_1280.jpg" target="_blank" class="image-link" title="food-8151625_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/food-8151625_1280.jpg" alt="food-8151625_1280.jpg" loading="lazy">
+          <div class="image-info">food-8151625_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/spicy-noodle-6902956_1280.jpg" target="_blank" class="image-link" title="spicy-noodle-6902956_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/spicy-noodle-6902956_1280.jpg" alt="spicy-noodle-6902956_1280.jpg" loading="lazy">
+          <div class="image-info">spicy-noodle-6902956_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/pasta-2054656_1280.jpg" target="_blank" class="image-link" title="pasta-2054656_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/pasta-2054656_1280.jpg" alt="pasta-2054656_1280.jpg" loading="lazy">
+          <div class="image-info">pasta-2054656_1280.jpg</div>
+        </a>
+        <a href="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/korean-food-709606_1280.jpg" target="_blank" class="image-link" title="korean-food-709606_1280.jpg">
+          <img src="https://raw.githubusercontent.com/nsiva7/Data/main/Images/Noodles/korean-food-709606_1280.jpg" alt="korean-food-709606_1280.jpg" loading="lazy">
+          <div class="image-info">korean-food-709606_1280.jpg</div>
+        </a>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <p>Generated with ❤️ by Kotlin HTML Generator</p>
+    <p><small>Repository: <a href="https://github.com/nsiva7/Data" target="_blank">nsiva7/Data</a></small></p>
+  </footer>
+  
+  <script>
+// Add loading animation to images
+document.addEventListener('DOMContentLoaded', function() {
+  const images = document.querySelectorAll('.image-link img');
+  
+  images.forEach(img => {
+    img.addEventListener('load', function() {
+      this.classList.add('loaded');
+    });
+    
+    img.addEventListener('error', function() {
+      this.style.background = '#f8d7da';
+      this.style.color = '#721c24';
+      this.alt = '❌ Failed to load: ' + this.alt;
+    });
+  });
+  
+  // Add click analytics (optional)
+  const imageLinks = document.querySelectorAll('.image-link');
+  imageLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      console.log('Image clicked:', this.title);
+    });
+  });
+  
+  // Show total load time
+  window.addEventListener('load', function() {
+    const loadTime = performance.now();
+    console.log('Page loaded in', Math.round(loadTime), 'ms');
+  });
+});
+  </script>
 </body>
 </html>

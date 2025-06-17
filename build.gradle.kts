@@ -19,7 +19,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("siva.nimmala.htmlgenerator.MainKt")
+    mainClass.set("MainKt")
 }
 
 tasks.test {
@@ -36,6 +36,6 @@ tasks.register("generateHtml", JavaExec::class) {
     description = "Generate index.html from local Images folder"
     dependsOn("classes")
 
-    mainClass.set("siva.nimmala.htmlgenerator.MainKt")
+    mainClass.set("MainKt")
     classpath = sourceSets.main.get().runtimeClasspath
 }
