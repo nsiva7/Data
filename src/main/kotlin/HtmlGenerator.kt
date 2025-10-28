@@ -127,7 +127,7 @@ class HtmlGenerator(
                     appendLine("      <h2 class=\"folder-title\">📁 $folderName (${images.size} images)</h2>")
                     appendLine("      <div class=\"image-container\">")
 
-                    images.forEach { image ->
+                    images.sortedBy { it.fileName.lowercase() }.forEach { image ->
                         appendLine("        <a href=\"${image.githubRawUrl}\" target=\"_blank\" class=\"image-link\" title=\"${image.fileName}\">")
                         appendLine("          <img src=\"${image.githubRawUrl}\" alt=\"${image.fileName}\" loading=\"lazy\">")
                         appendLine("          <div class=\"image-info\">${image.fileName}</div>")
